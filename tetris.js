@@ -79,16 +79,22 @@ class Tetromino {
 }
 
 function drawBlock(context, x, y) {
+  context.beginPath();
   context.rect(40 * x + 1, 40 * y + 1, 38, 38);
   context.fillStyle = "lightgray";
   context.fill();
   context.strokeStyle = "slategray";
   context.stroke();
+  context.closePath();
 }
 
 const ctx = document.getElementById("playfield").getContext("2d");
 
 let test = Tetromino.L();
+
 test.drawSelf(ctx, 3, 7);
-test.rotate();
-test.drawSelf(ctx, 6, 7);
+setInterval(() => {
+  ctx.clearRect(0, 0, 480, 640);
+  test.rotate();
+  test.drawSelf(ctx, 6, 7);
+}, 500);
