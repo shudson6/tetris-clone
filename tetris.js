@@ -1,13 +1,36 @@
 /********************************************************************************
  * Tetromino class!
+ * 
+ * Tetra - 4 - Tetromino.
+ * That's why its blocks member is hard-coded with 4 elements.
+ * 
+ * There's really no point creating new instances. Just use the provided ones.
  */
 class Tetromino {
   /**
-   * Provide an array of [x, y] pairs
-   * @param  {...any} blocks 
+   * 
+   * @param {*} a 
+   * @param {*} b 
+   * @param {*} c 
+   * @param {*} d 
    */
   constructor(a, b, c, d) {
     this.blocks = [ a, b, c, d ];
+  }
+
+  /**
+   * Rotates this Tetromino. The standard direction is clockwise, but
+   * if counterclockwise === true it will rotate that way.
+   * 
+   * @param {*} counterclockwise indicates if rotation should be reversed
+   */
+  rotate(counterclockwise) {
+    const sinTheta = counterclockwise ? 1 : -1;
+    for (let v of this.blocks) {
+      const [x, y] = v;
+      v[0] = -y * sinTheta;
+      v[1] = x * sinTheta;
+    }
   }
 
   drawSelf(context, x, y) {
@@ -17,7 +40,7 @@ class Tetromino {
   }
 
   getBlocks() {
-    // deep copy to protect immutability
+    // deep copy
     return [ 
       [ ...this.blocks[0]],
       [ ...this.blocks[1]],
@@ -26,13 +49,33 @@ class Tetromino {
     ];
   }
 
-  static L = new Tetromino([0,0], [1,0], [2,0], [2,1]);
-  static J = new Tetromino([0,0], [0,1], [1,1], [2,1]);
-  static S = new Tetromino([1,0], [2,0], [0,1], [1,1]);
-  static Z = new Tetromino([0,0], [1,0], [1,1], [2,1]);
-  static I = new Tetromino([0,0], [1,0], [2,0], [3,0]);
-  static T = new Tetromino([1,0], [0,1], [1,1], [2,1]);
-  static O = new Tetromino([0,0], [0,1], [1,0], [1,1]);
+  static L() {
+    return new Tetromino([0,0], [1,0], [2,0], [2,1]);
+  } 
+
+  static J() {
+    return new Tetromino([0,0], [0,1], [1,1], [2,1]);
+  }
+
+  static S() {
+    return new Tetromino([1,0], [2,0], [0,1], [1,1]);
+  }
+
+  static Z() {
+    return new Tetromino([0,0], [1,0], [1,1], [2,1]);
+  } 
+
+  static I() {
+    return new Tetromino([0,0], [1,0], [2,0], [3,0]);
+  } 
+
+  static T() {
+    return new Tetromino([1,0], [0,1], [1,1], [2,1]);
+  } 
+
+  static O() {
+    return new Tetromino([0,0], [0,1], [1,0], [1,1]);
+  } 
 }
 
 function drawBlock(context, x, y) {
@@ -47,21 +90,5 @@ const ctx = document.getElementById("playfield").getContext("2d");
 
 let test = Tetromino.L();
 test.drawSelf(ctx, 3, 7);
-
-test = Tetromino.J();
-test.drawSelf(ctx, 0, 8);
-
-test = Tetromino.S();
-test.drawSelf(ctx, 2, 11);
-
-test = Tetromino.Z();
-test.drawSelf(ctx, 4, 13);
-
-test = Tetromino.I();
-test.drawSelf(ctx, 5, 1);
-
-test = Tetromino.T();
-test.drawSelf(ctx, 7, 3);
-
-test = Tetromino.O();
-test.drawSelf(ctx, 9, 13);
+test.rotate();
+test.drawSelf(ctx, 6, 7);
