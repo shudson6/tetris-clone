@@ -1,3 +1,6 @@
+const ctx = document.getElementById("playfield").getContext("2d");
+let activeTetro;
+
 /*******************************************************************************
  * Tetromino class!
  * 
@@ -35,8 +38,8 @@ class Tetromino {
   }
 
   /**
-   * Creates a doubly-linked circular list from the parameters. If only one is 
-   * given, it _will_ link to itself in both directions.
+   * Creates a doubly-linked circular list from the parameters and adds getters
+   * nextRotation() and prevRotation() to retrieve them.
    * 
    * Intented for creating the static tetrominos below.
    * 
@@ -113,18 +116,6 @@ class Tetromino {
   );
 }
 
-
-
-function drawBlock(context, x, y) {
-  context.beginPath();
-  context.rect(40 * x + 1, 40 * y + 1, 38, 38);
-  context.fillStyle = "lightgray";
-  context.fill();
-  context.strokeStyle = "slategray";
-  context.stroke();
-  context.closePath();
-}
-
 /*******************************************************************************
  * Controls (User input handling)
  ******************************************************************************/
@@ -167,53 +158,72 @@ function handleKeyUp(event) {
 }
 
 function rightKeyPressed() {
-  console.log("Right key pressed!");
+  activeTetro.x += 1;
+  draw();
 }
 
 function leftKeyPressed() {
-  console.log("Left key pressed!");
+  activeTetro.x -= 1;
+  draw();
 }
 
 function upKeyPressed() {
-  console.log("Up key pressed!");
+  activeTetro.tetro = activeTetro.tetro.nextRotation();
+  draw();
 }
 
 /*******************************************************************************
- * 
+ * Graphics
+ ******************************************************************************/
+
+function drawBlock(context, x, y) {
+  context.beginPath();
+  context.rect(30 * x + 11, 30 * y + 11, 28, 28);
+  context.fillStyle = "lightgray";
+  context.fill();
+  context.strokeStyle = "slategray";
+  context.stroke();
+  context.closePath();
+}
+
+function drawPlayfield(context) {
+  context.beginPath();
+  context.rect(10, 10, 300, 600);
+  context.strokeStyle = "white";
+  context.stroke();
+  context.closePath();
+}
+
+/**
+ * This becomes the callback given to window.requestAnimationFrame()
+ * @param {*} context 
+ * @param {*} lockedBlocks 
+ * @param {*} currentBlock 
  */
-
-
-const ctx = document.getElementById("playfield").getContext("2d");
-
-let test = [
-  Tetromino.I,
-  Tetromino.J,
-  Tetromino.L,
-  Tetromino.O,
-  Tetromino.S,
-  Tetromino.T,
-  Tetromino.Z
-];
-
-test[0].drawSelf(ctx, 1, 1);
-test[1].drawSelf(ctx, 1, 5);
-test[2].drawSelf(ctx, 1, 9);
-test[3].drawSelf(ctx, 1, 13);
-test[4].drawSelf(ctx, 6, 3);
-test[5].drawSelf(ctx, 6, 7);
-test[6].drawSelf(ctx, 6, 11);
-
-setInterval(() => {
-  ctx.clearRect(0, 0, 480, 640);
-  test = test.map(t => t.nextRotation());
-  test[0].drawSelf(ctx, 1, 1);
-  test[1].drawSelf(ctx, 1, 5);
-  test[2].drawSelf(ctx, 1, 9);
-  test[3].drawSelf(ctx, 1, 13);
-  test[4].drawSelf(ctx, 6, 3);
-  test[5].drawSelf(ctx, 6, 7);
-  test[6].drawSelf(ctx, 6, 11);
-}, 500);
+function draw() {
+  requestAnimationFrame(() => {
+    ctx.clearRect(0, 0, 480, 640);
+    drawPlayfield( ctx );
+    for (const block of activeTetro.tetro.getBlocks()) {
+      drawBlock(ctx, block[0] + activeTetro.x, block[1] + activeTetro.y);
+    }
+  });
+};
 
 document.addEventListener("keydown", handleKeyDown);
 document.addEventListener("keyup", handleKeyUp);
+
+activeTetro = {
+  tetro: Tetromino.J,
+  x: 3,
+  y: 0
+};
+
+draw();
+setInterval(() => {
+  activeTetro.y += 1;
+  if (activeTetro.y > 19) {
+    activeTetro.y = 0;
+  }
+  draw();
+}, 500);
