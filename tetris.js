@@ -1,5 +1,5 @@
 const ctx = document.getElementById("playfield").getContext("2d");
-const activeTetro = {};
+let activeTetro = {};
 const lockedBlocks = [];
 
 /*******************************************************************************
@@ -159,15 +159,27 @@ function handleKeyUp(event) {
 }
 
 function rightKeyPressed() {
-  activeTetro.x += 1;
+  if ( ! checkPlayfieldBounds({ 
+    tetro: activeTetro.tetro,
+    x: activeTetro.x + 1,
+    y: activeTetro.y
+  })) {
+    activeTetro.x += 1;
+  }
 }
 
 function leftKeyPressed() {
-  activeTetro.x -= 1;
+  if ( ! checkPlayfieldBounds({ 
+    tetro: activeTetro.tetro,
+    x: activeTetro.x - 1,
+    y: activeTetro.y
+  })) {
+    activeTetro.x -= 1;
+  }
 }
 
 function upKeyPressed() {
-  activeTetro.tetro = activeTetro.tetro.nextRotation();
+  activeTetro = tryRotate( activeTetro );
 }
 
 /*******************************************************************************
@@ -206,6 +218,42 @@ function draw() {
   }
 
   requestAnimationFrame( draw );
+}
+
+/*******************************************************************************
+ * Collision
+ ******************************************************************************/
+
+function checkPlayfieldBounds(tetro) {
+  for (const block of tetro.tetro.getBlocks()) {
+    const x = block[0] + tetro.x;
+    if (x < 0 || x > 9) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function tryRotate(tetro) {
+  const rotated = {
+    ...tetro,
+    tetro: tetro.tetro.nextRotation(),
+  }
+
+  if (checkPlayfieldBounds( rotated )) {
+    // try moving 1 in from left then right
+    if ( ! checkPlayfieldBounds({ ...rotated, x: rotated.x + 1 })) {
+      rotated.x += 1;
+    }
+    else if ( ! checkPlayfieldBounds({ ...rotated, x: rotated.x - 1 })) {
+      rotated.x -= 1;
+    }
+    else {
+      return tetro;
+    }
+  }
+
+  return rotated;
 }
 
 document.addEventListener("keydown", handleKeyDown);
