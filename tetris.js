@@ -1,11 +1,11 @@
-/********************************************************************************
+/*******************************************************************************
  * Tetromino class!
  * 
  * Tetra - 4 - Tetromino.
  * That's why its blocks member is hard-coded with 4 elements.
  * 
  * There's really no point creating new instances. Just use the provided ones.
- */
+ ******************************************************************************/
 class Tetromino {
   /**
    * 
@@ -125,6 +125,64 @@ function drawBlock(context, x, y) {
   context.closePath();
 }
 
+/*******************************************************************************
+ * Controls (User input handling)
+ ******************************************************************************/
+
+let leftArrowDown = false;
+let rightArrowDown = false;
+let upArrowDown = false;
+
+function handleKeyDown(event) {
+  if ( (event.key === "Right" || event.key === "ArrowRight") 
+      && !rightArrowDown 
+  ) {
+    rightArrowDown = true;
+    rightKeyPressed();
+  }
+  else if ( (event.key === "Left" || event.key === "ArrowLeft")
+      && !leftArrowDown
+  ) {
+    leftArrowDown = true;
+    leftKeyPressed();
+  }
+  else if ( (event.key === "Up" || event.key === "ArrowUp")
+      && !upArrowDown
+  ) {
+    upArrowDown = true;
+    upKeyPressed();
+  }
+}
+
+function handleKeyUp(event) {
+  if (event.key === "Right" || event.key === "ArrowRight") {
+    rightArrowDown = false;
+  }
+  else if (event.key === "Left" || event.key === "ArrowLeft") {
+    leftArrowDown = false;
+  }
+  else if (event.key === "Up" || event.key === "ArrowUp") {
+    upArrowDown = false;
+  }
+}
+
+function rightKeyPressed() {
+  console.log("Right key pressed!");
+}
+
+function leftKeyPressed() {
+  console.log("Left key pressed!");
+}
+
+function upKeyPressed() {
+  console.log("Up key pressed!");
+}
+
+/*******************************************************************************
+ * 
+ */
+
+
 const ctx = document.getElementById("playfield").getContext("2d");
 
 let test = [
@@ -156,3 +214,6 @@ setInterval(() => {
   test[5].drawSelf(ctx, 6, 7);
   test[6].drawSelf(ctx, 6, 11);
 }, 500);
+
+document.addEventListener("keydown", handleKeyDown);
+document.addEventListener("keyup", handleKeyUp);
