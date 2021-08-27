@@ -1,5 +1,6 @@
 const ctx = document.getElementById("playfield").getContext("2d");
-let activeTetro;
+const activeTetro = {};
+const lockedBlocks = [];
 
 /*******************************************************************************
  * Tetromino class!
@@ -159,17 +160,14 @@ function handleKeyUp(event) {
 
 function rightKeyPressed() {
   activeTetro.x += 1;
-  draw();
 }
 
 function leftKeyPressed() {
   activeTetro.x -= 1;
-  draw();
 }
 
 function upKeyPressed() {
   activeTetro.tetro = activeTetro.tetro.nextRotation();
-  draw();
 }
 
 /*******************************************************************************
@@ -201,29 +199,27 @@ function drawPlayfield(context) {
  * @param {*} currentBlock 
  */
 function draw() {
-  requestAnimationFrame(() => {
-    ctx.clearRect(0, 0, 480, 640);
-    drawPlayfield( ctx );
-    for (const block of activeTetro.tetro.getBlocks()) {
-      drawBlock(ctx, block[0] + activeTetro.x, block[1] + activeTetro.y);
-    }
-  });
-};
+  ctx.clearRect(0, 0, 480, 640);
+  drawPlayfield( ctx );
+  for (const block of activeTetro.tetro.getBlocks()) {
+    drawBlock(ctx, block[0] + activeTetro.x, block[1] + activeTetro.y);
+  }
+
+  requestAnimationFrame( draw );
+}
 
 document.addEventListener("keydown", handleKeyDown);
 document.addEventListener("keyup", handleKeyUp);
 
-activeTetro = {
-  tetro: Tetromino.J,
-  x: 3,
-  y: 0
-};
+activeTetro.tetro = Tetromino.J;
+activeTetro.x = 3;
+activeTetro.y = 0;
 
-draw();
 setInterval(() => {
   activeTetro.y += 1;
   if (activeTetro.y > 19) {
     activeTetro.y = 0;
   }
-  draw();
 }, 500);
+
+draw();
