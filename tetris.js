@@ -352,12 +352,12 @@ function tick() {
         activeTetro.tetro.getBlocks().map(
             b => new Block(b.x + activeTetro.x, b.y + activeTetro.y)
     ));
-    checkForLines( activeTetro );
-    activeTetro = getNextTetromino();
-    if (checkEndgame(activeTetro)) {
-      clearInterval(interval);
+    if (checkEndgame( activeTetro )) {
+      clearInterval( interval );
       console.log("Game Over!");
     }
+    checkForLines( activeTetro );
+    activeTetro = getNextTetromino();
     nextTickLock = false;
   }
   else {
@@ -380,16 +380,15 @@ function levelUp() {
 }
 
 /**
- * Endgame conditions: a brand new tetromino (y === -1) is already in collision.
- * Note that all static Tetrominos are instantiated such that the bottom blocks
- * of their spawn states are even with activeTetro.y.
+ * Endgame conditions: tetromino lands completely above the playfield.
  * 
  * @param {*} tetro 
  * @returns true if endgame conditions are met
  */
 function checkEndgame(tetro) {
-  return tetro.y === -1 
-      && collisionDetect(tetro)
+  return tetro.tetro.getBlocks()
+      .map(b => b.y + tetro.y)
+      .every(y => y < 0);
 }
 
 function freshTetroBag() {
