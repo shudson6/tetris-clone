@@ -294,14 +294,27 @@ function tryRotate(tetro) {
   return rotated;
 }
 
+/**
+ * Endgame conditions: a brand new tetromino (y === -1) is already in collision.
+ * Note that all static Tetrominos are instantiated such that the bottom blocks
+ * of their spawn states are even with activeTetro.y.
+ * 
+ * @param {*} tetro 
+ * @returns true if endgame conditions are met
+ */
+function checkEndgame(tetro) {
+  return tetro.y === -1 
+      && collisionDetect(tetro)
+}
+
 document.addEventListener("keydown", handleKeyDown);
 document.addEventListener("keyup", handleKeyUp);
 
-activeTetro.tetro = Tetromino.J;
+activeTetro.tetro = Tetromino.I;
 activeTetro.x = 3;
-activeTetro.y = 0;
+activeTetro.y = -1;
 
-setInterval(() => {
+const interval = setInterval(() => {
   if (! collisionDetect({ ...activeTetro, y: activeTetro.y + 1 })) {
     activeTetro.y += 1;
   }
@@ -311,10 +324,14 @@ setInterval(() => {
             b => new Block(b.x + activeTetro.x, b.y + activeTetro.y)
     ));
     activeTetro = {
-      tetro: Tetromino.Z,
+      tetro: Tetromino.I,
       x: 3,
-      y: 0
+      y: -1
     };
+    if (checkEndgame(activeTetro)) {
+      clearInterval(interval);
+      console.log("Game Over!");
+    }
     nextTickLock = false;
   }
   else {
