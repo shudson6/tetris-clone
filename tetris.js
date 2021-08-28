@@ -1,6 +1,6 @@
 const ctx = document.getElementById("playfield").getContext("2d");
 let activeTetro = {};
-const lockedBlocks = [];
+let lockedBlocks = [];
 
 class Block {
   constructor(x, y) {
@@ -199,6 +199,10 @@ function drawPlayfield(context) {
   context.closePath();
 }
 
+function drawBlocks(blocks) {
+  blocks.forEach(b => drawBlock(ctx, b.x, b.y));
+}
+
 /**
  * This becomes the callback given to window.requestAnimationFrame()
  * @param {*} context 
@@ -208,6 +212,7 @@ function drawPlayfield(context) {
 function draw() {
   ctx.clearRect(0, 0, 480, 640);
   drawPlayfield( ctx );
+  drawBlocks( lockedBlocks );
   for (const block of activeTetro.tetro.getBlocks()) {
     drawBlock(ctx, block.x + activeTetro.x, block.y + activeTetro.y);
   }
@@ -250,7 +255,7 @@ function checkSideWalls(tetro) {
 
 function checkFloor(tetro) {
   for (const block of tetro.tetro.getBlocks()) {
-    const x = block.y + tetro.y;
+    const y = block.y + tetro.y;
     if (y == 19) {
       return true;
     }
@@ -323,9 +328,23 @@ activeTetro.x = 3;
 activeTetro.y = 0;
 
 setInterval(() => {
-  activeTetro.y += 1;
-  if (activeTetro.y > 19) {
-    activeTetro.y = 0;
+  if (! checkBelow(activeTetro)) {
+    activeTetro.y += 1;
+  }
+  else if (nextTickLock === true) {
+    lockedBlocks = lockedBlocks.concat(
+        activeTetro.tetro.getBlocks().map(
+            b => new Block(b.x + activeTetro.x, b.y + activeTetro.y)
+    ));
+    activeTetro = {
+      tetro: Tetromino.Z,
+      x: 3,
+      y: 0
+    };
+    nextTickLock = false;
+  }
+  else {
+    nextTickLock = true;
   }
 }, 500);
 
