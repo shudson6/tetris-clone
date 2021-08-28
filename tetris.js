@@ -257,6 +257,7 @@ function moveLeft() {
     x: activeTetro.x - 1,
   })) {
     activeTetro.x -= 1;
+    nextTickLock = false;
   }
 }
 
@@ -266,6 +267,7 @@ function moveRight() {
     x: activeTetro.x + 1,
   })) {
     activeTetro.x += 1;
+    nextTickLock = false;
   }
 }
 
@@ -291,6 +293,7 @@ function tryRotate(tetro) {
     }
   }
 
+  nextTickLock = false;
   return rotated;
 }
 
