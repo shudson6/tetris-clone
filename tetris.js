@@ -200,6 +200,7 @@ function drawBlocks(blocks) {
 
 function drawScore(context) {
   context.font = "24px sans-serif";
+  context.fillText(`level: ${level}`, 330, 180);
   context.fillText(`lines: ${lines}`, 330, 200);
 }
 
@@ -366,6 +367,16 @@ function tick() {
 
 function scoreLines(count) {
   lines += count;
+  if (Math.floor(lines / 10) > level) {
+    levelUp();
+  }
+}
+
+function levelUp() {
+  level++;
+  tickDelay -= 25;
+  clearInterval(interval);
+  interval = setInterval(tick, tickDelay);
 }
 
 /**
