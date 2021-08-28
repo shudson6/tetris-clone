@@ -2,6 +2,13 @@ const ctx = document.getElementById("playfield").getContext("2d");
 let activeTetro = {};
 const lockedBlocks = [];
 
+class Block {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+}
+
 /*******************************************************************************
  * Tetromino class!
  * 
@@ -19,7 +26,12 @@ class Tetromino {
    * @param {*} d 
    */
   constructor(a, b, c, d) {
-    this.blocks = [ a, b, c, d ];
+    this.blocks = [ 
+      new Block(...a), 
+      new Block(...b), 
+      new Block(...c), 
+      new Block(...d) 
+    ];
   }
 
   drawSelf(context, x, y) {
@@ -30,12 +42,7 @@ class Tetromino {
 
   getBlocks() {
     // deep copy
-    return [ 
-      [ ...this.blocks[0]],
-      [ ...this.blocks[1]],
-      [ ...this.blocks[2]],
-      [ ...this.blocks[3]]
-    ];
+    return this.blocks.map(b => Object.assign({}, b));
   }
 
   /**
@@ -159,23 +166,11 @@ function handleKeyUp(event) {
 }
 
 function rightKeyPressed() {
-  if ( ! checkPlayfieldBounds({ 
-    tetro: activeTetro.tetro,
-    x: activeTetro.x + 1,
-    y: activeTetro.y
-  })) {
-    activeTetro.x += 1;
-  }
+  moveRight();
 }
 
 function leftKeyPressed() {
-  if ( ! checkPlayfieldBounds({ 
-    tetro: activeTetro.tetro,
-    x: activeTetro.x - 1,
-    y: activeTetro.y
-  })) {
-    activeTetro.x -= 1;
-  }
+  moveLeft();
 }
 
 function upKeyPressed() {
@@ -214,7 +209,7 @@ function draw() {
   ctx.clearRect(0, 0, 480, 640);
   drawPlayfield( ctx );
   for (const block of activeTetro.tetro.getBlocks()) {
-    drawBlock(ctx, block[0] + activeTetro.x, block[1] + activeTetro.y);
+    drawBlock(ctx, block.x + activeTetro.x, block.y + activeTetro.y);
   }
 
   requestAnimationFrame( draw );
@@ -224,14 +219,78 @@ function draw() {
  * Collision
  ******************************************************************************/
 
-function checkPlayfieldBounds(tetro) {
+// set true when piece has bottomed out; if still true at next tick, piece
+// locks and next piece starts.
+// reset if player moves/rotates before next tick.
+let nextTickLock = false;
+
+function checkLeft(tetro) {
   for (const block of tetro.tetro.getBlocks()) {
-    const x = block[0] + tetro.x;
-    if (x < 0 || x > 9) {
+    const x = block.x + tetro.x;
+    if (x < 0) {
       return true;
     }
   }
   return false;
+}
+
+function checkRight(tetro) {
+  for (const block of tetro.tetro.getBlocks()) {
+    const x = block.x + tetro.x;
+    if (x > 9) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function checkSideWalls(tetro) {
+  return checkLeft(tetro) || checkRight(tetro);
+}
+
+function checkFloor(tetro) {
+  for (const block of tetro.tetro.getBlocks()) {
+    const x = block.y + tetro.y;
+    if (y == 19) {
+      return true;
+    }
+  }
+}
+
+function checkBelow(tetro) {
+  if (checkFloor(tetro)) {
+    return true;
+  }
+  for (const block of tetro.tetro.getBlocks()) {
+    const x = block.x + tetro.x;
+    const y = block.y + tetro.y;
+    for (const locked of lockedBlocks) {
+      if (locked.x === x && locked.y === y + 1) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function moveLeft() {
+  if ( ! checkLeft({ 
+    tetro: activeTetro.tetro,
+    x: activeTetro.x - 1,
+    y: activeTetro.y
+  })) {
+    activeTetro.x -= 1;
+  }
+}
+
+function moveRight() {
+  if ( ! checkRight({ 
+    tetro: activeTetro.tetro,
+    x: activeTetro.x + 1,
+    y: activeTetro.y
+  })) {
+    activeTetro.x += 1;
+  }
 }
 
 function tryRotate(tetro) {
@@ -240,12 +299,12 @@ function tryRotate(tetro) {
     tetro: tetro.tetro.nextRotation(),
   }
 
-  if (checkPlayfieldBounds( rotated )) {
+  if (checkSideWalls( rotated )) {
     // try moving 1 in from left then right
-    if ( ! checkPlayfieldBounds({ ...rotated, x: rotated.x + 1 })) {
+    if ( ! checkSideWalls({ ...rotated, x: rotated.x + 1 })) {
       rotated.x += 1;
     }
-    else if ( ! checkPlayfieldBounds({ ...rotated, x: rotated.x - 1 })) {
+    else if ( ! checkSideWalls({ ...rotated, x: rotated.x - 1 })) {
       rotated.x -= 1;
     }
     else {
