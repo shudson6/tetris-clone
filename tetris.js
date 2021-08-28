@@ -207,7 +207,7 @@ function drawScore(context) {
 function drawNext(context) {
   context.font = "18px sans-serif";
   context.fillText("next:", 330, 17);
-  drawBlocks( peekNextTetromino().getBlocks()
+  drawBlocks( tetroQueue.peek().getBlocks()
       .map(b => new Block(b.x + 11, b.y + 2))
   );
 }
@@ -347,7 +347,11 @@ function removeLine(y) {
  ******************************************************************************/
 
 function startGame() {
-  activeTetro = getNextTetromino();
+  activeTetro = {
+    tetro: tetroQueue.getNext(),
+    x: 3,
+    y: -1
+  };
   interval = setInterval(tick, tickDelay);
   draw();
 }
@@ -366,7 +370,11 @@ function tick() {
       console.log("Game Over!");
     }
     checkForLines( activeTetro );
-    activeTetro = getNextTetromino();
+    activeTetro = {
+      tetro: tetroQueue.getNext(),
+      x: 3,
+      y: -1
+    };
     nextTickLock = false;
   }
   else {
@@ -400,46 +408,47 @@ function checkEndgame(tetro) {
       .every(y => y < 0);
 }
 
-function freshTetroBag() {
-  const tetros = [
-    Tetromino.I,
-    Tetromino.J,
-    Tetromino.L,
-    Tetromino.O,
-    Tetromino.S,
-    Tetromino.T,
-    Tetromino.Z
-  ];
-  // "Knuth Shuffle"
-  for (let idx = tetros.length; idx > 0; idx--) {
-    const rand = Math.floor(Math.random() * idx);
-    [tetros[idx - 1], tetros[rand]] = [tetros[rand], tetros[idx - 1]];
-  }
-  return tetros;
-}
+// warning: iife
+const tetroQueue = (() => {
+  let tetroBag = [];
 
-function getNextTetromino() {
-  if (tetroBag.length == 0) {
-    tetroBag = freshTetroBag();
+  function freshTetroBag() {
+    const tetros = [
+      Tetromino.I,
+      Tetromino.J,
+      Tetromino.L,
+      Tetromino.O,
+      Tetromino.S,
+      Tetromino.T,
+      Tetromino.Z
+    ];
+    // "Knuth Shuffle"
+    for (let idx = tetros.length; idx > 0; idx--) {
+      const rand = Math.floor(Math.random() * idx);
+      [tetros[idx - 1], tetros[rand]] = [tetros[rand], tetros[idx - 1]];
+    }
+    return tetros;
   }
-  const tetro = {
-    tetro: tetroBag.pop(),
-    x: 3,
-    y: -1
-  }
-  // O tetro needs to scoot over 1
-  if (tetro.tetro === Tetromino.O) {
-    tetro.x = 4;
-  }
-  return tetro;
-}
 
-function peekNextTetromino() {
-  if (tetroBag.length == 0) {
-    tetroBag = freshTetroBag();
+  function getNext() {
+    if (tetroBag.length == 0) {
+      tetroBag = freshTetroBag();
+    }
+    return tetroBag.pop();
   }
-  return tetroBag[ tetroBag.length - 1 ];
-}
+
+  function peek() {
+    if (tetroBag.length == 0) {
+      tetroBag = freshTetroBag();
+    }
+    return tetroBag[ tetroBag.length - 1 ];
+  }
+
+  return {
+    getNext,
+    peek
+  };
+})();
 
 /*******************************************************************************
  * Setup
@@ -451,7 +460,6 @@ let lockedBlocks = [];
 let lines = 0;
 let level = 1;
 let tickDelay = 500;
-let tetroBag = [];
 let interval;
 
 document.addEventListener("keydown", handleKeyDown);
