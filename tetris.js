@@ -376,7 +376,7 @@ function tick() {
 
 function scoreLines(count) {
   lines += count;
-  if (Math.floor(lines / 10) > level) {
+  if (Math.floor(lines / 10) >= level) {
     levelUp();
   }
 }
