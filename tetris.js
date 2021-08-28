@@ -204,6 +204,14 @@ function drawScore(context) {
   context.fillText(`lines: ${lines}`, 330, 200);
 }
 
+function drawNext(context) {
+  context.font = "18px sans-serif";
+  context.fillText("next:", 330, 17);
+  drawBlocks( peekNextTetromino().getBlocks()
+      .map(b => new Block(b.x + 11, b.y + 2))
+  );
+}
+
 /**
  * This becomes the callback given to window.requestAnimationFrame()
  * @param {*} context 
@@ -214,6 +222,7 @@ function draw() {
   ctx.clearRect(0, 0, 480, 640);
   drawPlayfield( ctx );
   drawScore( ctx );
+  drawNext( ctx );
   drawBlocks( lockedBlocks );
   for (const block of activeTetro.tetro.getBlocks()) {
     drawBlock(ctx, block.x + activeTetro.x, block.y + activeTetro.y);
@@ -423,6 +432,13 @@ function getNextTetromino() {
     tetro.x = 4;
   }
   return tetro;
+}
+
+function peekNextTetromino() {
+  if (tetroBag.length == 0) {
+    tetroBag = freshTetroBag();
+  }
+  return tetroBag[ tetroBag.length - 1 ];
 }
 
 /*******************************************************************************
