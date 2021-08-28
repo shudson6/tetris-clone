@@ -129,22 +129,17 @@ class Tetromino {
  * Controls (User input handling)
  ******************************************************************************/
 
-let leftArrowDown = false;
-let rightArrowDown = false;
 let upArrowDown = false;
 
 function handleKeyDown(event) {
-  if ( (event.key === "Right" || event.key === "ArrowRight") 
-      && !rightArrowDown 
-  ) {
-    rightArrowDown = true;
+  if (event.key === "Right" || event.key === "ArrowRight") {
     rightKeyPressed();
   }
-  else if ( (event.key === "Left" || event.key === "ArrowLeft")
-      && !leftArrowDown
-  ) {
-    leftArrowDown = true;
+  else if (event.key === "Left" || event.key === "ArrowLeft") {
     leftKeyPressed();
+  }
+  else if (event.key === "Down" || event.key === "ArrowDown") {
+    downKeyPressed();
   }
   else if ( (event.key === "Up" || event.key === "ArrowUp")
       && !upArrowDown
@@ -176,6 +171,10 @@ function leftKeyPressed() {
 
 function upKeyPressed() {
   activeTetro = tryRotate( activeTetro );
+}
+
+function downKeyPressed() {
+  moveDown();
 }
 
 /*******************************************************************************
@@ -261,7 +260,7 @@ function collisionDetect(tetro) {
 function moveLeft() {
   if ( ! collisionDetect({ 
     ...activeTetro,
-    x: activeTetro.x - 1,
+    x: activeTetro.x - 1
   })) {
     activeTetro.x -= 1;
     nextTickLock = false;
@@ -271,10 +270,19 @@ function moveLeft() {
 function moveRight() {
   if ( ! collisionDetect({ 
     ...activeTetro,
-    x: activeTetro.x + 1,
+    x: activeTetro.x + 1
   })) {
     activeTetro.x += 1;
     nextTickLock = false;
+  }
+}
+
+function moveDown() {
+  if ( ! collisionDetect({
+      ...activeTetro,
+      y: activeTetro.y + 1
+  })) {
+    activeTetro.y += 1;
   }
 }
 
