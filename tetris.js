@@ -1,8 +1,3 @@
-const ctx = document.getElementById("playfield").getContext("2d");
-let activeTetro = {};
-let lockedBlocks = [];
-let lines = 0;
-
 class Block {
   constructor(x, y) {
     this.x = x;
@@ -314,12 +309,14 @@ function tryRotate(tetro) {
 
 function checkForLines(tetro) {
   const yValues = new Set( tetro.tetro.getBlocks().map(b => b.y + tetro.y ));
+  let count = 0;
   for (const y of yValues) {
     if (checkLine( y )) {
       removeLine( y );
-      lines++;
+      count++;
     }
   }
+  scoreLines(count);
 }
 
 function checkLine(y) {
@@ -333,6 +330,42 @@ function removeLine(y) {
       b.y += 1;
     }
   }
+}
+
+/*******************************************************************************
+ * Gameplay
+ ******************************************************************************/
+
+function startGame() {
+  activeTetro = getNextTetromino();
+  interval = setInterval(tick, tickDelay);
+  draw();
+}
+
+function tick() {
+  if (! collisionDetect({ ...activeTetro, y: activeTetro.y + 1 })) {
+    activeTetro.y += 1;
+  }
+  else if (nextTickLock === true) {
+    lockedBlocks = lockedBlocks.concat(
+        activeTetro.tetro.getBlocks().map(
+            b => new Block(b.x + activeTetro.x, b.y + activeTetro.y)
+    ));
+    checkForLines( activeTetro );
+    activeTetro = getNextTetromino();
+    if (checkEndgame(activeTetro)) {
+      clearInterval(interval);
+      console.log("Game Over!");
+    }
+    nextTickLock = false;
+  }
+  else {
+    nextTickLock = true;
+  }
+}
+
+function scoreLines(count) {
+  lines += count;
 }
 
 /**
@@ -366,7 +399,6 @@ function freshTetroBag() {
   return tetros;
 }
 
-let tetroBag = [];
 function getNextTetromino() {
   if (tetroBag.length == 0) {
     tetroBag = freshTetroBag();
@@ -383,31 +415,20 @@ function getNextTetromino() {
   return tetro;
 }
 
+/*******************************************************************************
+ * Setup
+ ******************************************************************************/
+
+const ctx = document.getElementById("playfield").getContext("2d");
+let activeTetro = {};
+let lockedBlocks = [];
+let lines = 0;
+let level = 1;
+let tickDelay = 500;
+let tetroBag = [];
+let interval;
+
 document.addEventListener("keydown", handleKeyDown);
 document.addEventListener("keyup", handleKeyUp);
 
-activeTetro = getNextTetromino();
-
-const interval = setInterval(() => {
-  if (! collisionDetect({ ...activeTetro, y: activeTetro.y + 1 })) {
-    activeTetro.y += 1;
-  }
-  else if (nextTickLock === true) {
-    lockedBlocks = lockedBlocks.concat(
-        activeTetro.tetro.getBlocks().map(
-            b => new Block(b.x + activeTetro.x, b.y + activeTetro.y)
-    ));
-    checkForLines( activeTetro );
-    activeTetro = getNextTetromino();
-    if (checkEndgame(activeTetro)) {
-      clearInterval(interval);
-      console.log("Game Over!");
-    }
-    nextTickLock = false;
-  }
-  else {
-    nextTickLock = true;
-  }
-}, 500);
-
-draw();
+startGame();
