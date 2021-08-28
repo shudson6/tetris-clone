@@ -229,48 +229,21 @@ function draw() {
 // reset if player moves/rotates before next tick.
 let nextTickLock = false;
 
-function checkLeft(tetro) {
-  for (const block of tetro.tetro.getBlocks()) {
-    const x = block.x + tetro.x;
-    if (x < 0) {
+function collisionDetect(tetro) {
+  for (const b of tetro.tetro.getBlocks()) {
+    const x = b.x + tetro.x;
+    const y = b.y + tetro.y;
+    // playfield bounds
+    if (x < 0 || x > 9) {
       return true;
     }
-  }
-  return false;
-}
 
-function checkRight(tetro) {
-  for (const block of tetro.tetro.getBlocks()) {
-    const x = block.x + tetro.x;
-    if (x > 9) {
+    if (y > 19) {
       return true;
     }
-  }
-  return false;
-}
-
-function checkSideWalls(tetro) {
-  return checkLeft(tetro) || checkRight(tetro);
-}
-
-function checkFloor(tetro) {
-  for (const block of tetro.tetro.getBlocks()) {
-    const y = block.y + tetro.y;
-    if (y == 19) {
-      return true;
-    }
-  }
-}
-
-function checkBelow(tetro) {
-  if (checkFloor(tetro)) {
-    return true;
-  }
-  for (const block of tetro.tetro.getBlocks()) {
-    const x = block.x + tetro.x;
-    const y = block.y + tetro.y;
-    for (const locked of lockedBlocks) {
-      if (locked.x === x && locked.y === y + 1) {
+    
+    for (const l of lockedBlocks) {
+      if (l.x === x && l.y === y) {
         return true;
       }
     }
@@ -279,20 +252,18 @@ function checkBelow(tetro) {
 }
 
 function moveLeft() {
-  if ( ! checkLeft({ 
-    tetro: activeTetro.tetro,
+  if ( ! collisionDetect({ 
+    ...activeTetro,
     x: activeTetro.x - 1,
-    y: activeTetro.y
   })) {
     activeTetro.x -= 1;
   }
 }
 
 function moveRight() {
-  if ( ! checkRight({ 
-    tetro: activeTetro.tetro,
+  if ( ! collisionDetect({ 
+    ...activeTetro,
     x: activeTetro.x + 1,
-    y: activeTetro.y
   })) {
     activeTetro.x += 1;
   }
@@ -304,13 +275,16 @@ function tryRotate(tetro) {
     tetro: tetro.tetro.nextRotation(),
   }
 
-  if (checkSideWalls( rotated )) {
+  if (collisionDetect( rotated )) {
     // try moving 1 in from left then right
-    if ( ! checkSideWalls({ ...rotated, x: rotated.x + 1 })) {
+    if ( ! collisionDetect({ ...rotated, x: rotated.x + 1 })) {
       rotated.x += 1;
     }
-    else if ( ! checkSideWalls({ ...rotated, x: rotated.x - 1 })) {
+    else if ( ! collisionDetect({ ...rotated, x: rotated.x - 1 })) {
       rotated.x -= 1;
+    }
+    else if ( ! collisionDetect({ ...rotated, y: rotated.y - 1 })) {
+      rotated.y -= 1;
     }
     else {
       return tetro;
@@ -328,7 +302,7 @@ activeTetro.x = 3;
 activeTetro.y = 0;
 
 setInterval(() => {
-  if (! checkBelow(activeTetro)) {
+  if (! collisionDetect({ ...activeTetro, y: activeTetro.y + 1 })) {
     activeTetro.y += 1;
   }
   else if (nextTickLock === true) {
