@@ -307,12 +307,45 @@ function checkEndgame(tetro) {
       && collisionDetect(tetro)
 }
 
+function freshTetroBag() {
+  const tetros = [
+    Tetromino.I,
+    Tetromino.J,
+    Tetromino.L,
+    Tetromino.O,
+    Tetromino.S,
+    Tetromino.T,
+    Tetromino.Z
+  ];
+  // "Knuth Shuffle"
+  for (let idx = tetros.length; idx > 0; idx--) {
+    const rand = Math.floor(Math.random() * idx);
+    [tetros[idx - 1], tetros[rand]] = [tetros[rand], tetros[idx - 1]];
+  }
+  return tetros;
+}
+
+let tetroBag = [];
+function getNextTetromino() {
+  if (tetroBag.length == 0) {
+    tetroBag = freshTetroBag();
+  }
+  const tetro = {
+    tetro: tetroBag.pop(),
+    x: 3,
+    y: -1
+  }
+  // O tetro needs to scoot over 1
+  if (tetro.tetro === Tetromino.O) {
+    tetro.x = 4;
+  }
+  return tetro;
+}
+
 document.addEventListener("keydown", handleKeyDown);
 document.addEventListener("keyup", handleKeyUp);
 
-activeTetro.tetro = Tetromino.I;
-activeTetro.x = 3;
-activeTetro.y = -1;
+activeTetro = getNextTetromino();
 
 const interval = setInterval(() => {
   if (! collisionDetect({ ...activeTetro, y: activeTetro.y + 1 })) {
@@ -323,11 +356,7 @@ const interval = setInterval(() => {
         activeTetro.tetro.getBlocks().map(
             b => new Block(b.x + activeTetro.x, b.y + activeTetro.y)
     ));
-    activeTetro = {
-      tetro: Tetromino.I,
-      x: 3,
-      y: -1
-    };
+    activeTetro = getNextTetromino();
     if (checkEndgame(activeTetro)) {
       clearInterval(interval);
       console.log("Game Over!");
