@@ -85,42 +85,42 @@ class Tetromino {
   );
 
   static J = Tetromino.createLinkedRotation(
-    new Tetromino([0,0], [0,1], [1,1], [2,1]),
-    new Tetromino([1,0], [1,1], [1,2], [2,0]),
-    new Tetromino([0,1], [1,1], [2,1], [2,2]),
-    new Tetromino([0,2], [1,0], [1,1], [1,2])
+    new Tetromino([0,-1], [0,0], [1,0], [2,0]),
+    new Tetromino([1,-1], [1,0], [1,1], [2,-1]),
+    new Tetromino([0,0], [1,0], [2,0], [2,1]),
+    new Tetromino([0,1], [1,-1], [1,0], [1,1])
   );
 
   static L = Tetromino.createLinkedRotation(
-    new Tetromino([0,1], [1,1], [2,0], [2,1]),
-    new Tetromino([1,0], [1,1], [1,2], [2,2]),
-    new Tetromino([0,1], [0,2], [1,1], [2,1]),
-    new Tetromino([0,0], [1,0], [1,1], [1,2])
+    new Tetromino([0,0], [1,0], [2,-1], [2,0]),
+    new Tetromino([1,-1], [1,0], [1,1], [2,1]),
+    new Tetromino([0,0], [0,1], [1,0], [2,0]),
+    new Tetromino([0,-1], [1,-1], [1,0], [1,1])
   );
 
   static O = Tetromino.createLinkedRotation(
-    new Tetromino([0,0], [0,1], [1,0], [1,1])
+    new Tetromino([0,-1], [0,0], [1,-1], [1,0])
   ); 
 
   static S = Tetromino.createLinkedRotation(
+    new Tetromino([0,0], [1,-1], [1,0], [2,-1]),
+    new Tetromino([1,-1], [1,0], [2,0], [2,1]),
     new Tetromino([0,1], [1,0], [1,1], [2,0]),
-    new Tetromino([1,0], [1,1], [2,1], [2,2]),
-    new Tetromino([0,2], [1,1], [1,2], [2,1]),
-    new Tetromino([0,0], [0,1], [1,1], [1,2])
+    new Tetromino([0,-1], [0,0], [1,0], [1,1])
   );
 
   static T = Tetromino.createLinkedRotation(
-    new Tetromino([0,1], [1,0], [1,1], [2,1]),
-    new Tetromino([1,0], [1,1], [1,2], [2,1]),
-    new Tetromino([0,1], [1,1], [1,2], [2,1]),
-    new Tetromino([0,1], [1,0], [1,1], [1,2])
+    new Tetromino([0,0], [1,-1], [1,0], [2,0]),
+    new Tetromino([1,-1], [1,0], [1,1], [2,0]),
+    new Tetromino([0,0], [1,0], [1,1], [2,0]),
+    new Tetromino([0,0], [1,-1], [1,0], [1,1])
   );
 
   static Z = Tetromino.createLinkedRotation(
+    new Tetromino([0,-1], [1,-1], [1,0], [2,0]),
+    new Tetromino([1,0], [1,1], [2,-1], [2,0]),
     new Tetromino([0,0], [1,0], [1,1], [2,1]),
-    new Tetromino([1,1], [1,2], [2,0], [2,1]),
-    new Tetromino([0,1], [1,1], [1,2], [2,2]),
-    new Tetromino([0,1], [0,2], [1,0], [1,1])
+    new Tetromino([0,0], [0,1], [1,-1], [1,0])
   );
 }
 
