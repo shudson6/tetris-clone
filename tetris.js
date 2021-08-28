@@ -1,6 +1,7 @@
 const ctx = document.getElementById("playfield").getContext("2d");
 let activeTetro = {};
 let lockedBlocks = [];
+let lines = 0;
 
 class Block {
   constructor(x, y) {
@@ -203,6 +204,11 @@ function drawBlocks(blocks) {
   blocks.forEach(b => drawBlock(ctx, b.x, b.y));
 }
 
+function drawScore(context) {
+  context.font = "24px sans-serif";
+  context.fillText(`lines: ${lines}`, 330, 200);
+}
+
 /**
  * This becomes the callback given to window.requestAnimationFrame()
  * @param {*} context 
@@ -212,6 +218,7 @@ function drawBlocks(blocks) {
 function draw() {
   ctx.clearRect(0, 0, 480, 640);
   drawPlayfield( ctx );
+  drawScore( ctx );
   drawBlocks( lockedBlocks );
   for (const block of activeTetro.tetro.getBlocks()) {
     drawBlock(ctx, block.x + activeTetro.x, block.y + activeTetro.y);
@@ -297,6 +304,29 @@ function tryRotate(tetro) {
   return rotated;
 }
 
+function checkForLines(tetro) {
+  const yValues = new Set( tetro.tetro.getBlocks().map(b => b.y + tetro.y ));
+  for (const y of yValues) {
+    if (checkLine( y )) {
+      removeLine( y );
+      lines++;
+    }
+  }
+}
+
+function checkLine(y) {
+  return lockedBlocks.filter(b => b.y === y).length === 10;
+}
+
+function removeLine(y) {
+  lockedBlocks = lockedBlocks.filter(b => b.y !== y);
+  for (const b of lockedBlocks) {
+    if (b.y < y) {
+      b.y += 1;
+    }
+  }
+}
+
 /**
  * Endgame conditions: a brand new tetromino (y === -1) is already in collision.
  * Note that all static Tetrominos are instantiated such that the bottom blocks
@@ -359,6 +389,7 @@ const interval = setInterval(() => {
         activeTetro.tetro.getBlocks().map(
             b => new Block(b.x + activeTetro.x, b.y + activeTetro.y)
     ));
+    checkForLines( activeTetro );
     activeTetro = getNextTetromino();
     if (checkEndgame(activeTetro)) {
       clearInterval(interval);
