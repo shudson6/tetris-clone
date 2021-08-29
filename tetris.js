@@ -124,7 +124,11 @@ class Tetromino {
  * Controls (User input handling)
  ******************************************************************************/
 
+let leftArrowDown = false;
+let rightArrowDown = false;
 let upArrowDown = false;
+let downArrowDown = false;
+let inputTimeoutID;
 
 function handleKeyDown(event) {
   if (event.key === "Right" || event.key === "ArrowRight") {
@@ -136,40 +140,81 @@ function handleKeyDown(event) {
   else if (event.key === "Down" || event.key === "ArrowDown") {
     downKeyPressed();
   }
-  else if ( (event.key === "Up" || event.key === "ArrowUp")
-      && !upArrowDown
-  ) {
-    upArrowDown = true;
+  else if (event.key === "Up" || event.key === "ArrowUp") {
     upKeyPressed();
   }
 }
 
 function handleKeyUp(event) {
   if (event.key === "Right" || event.key === "ArrowRight") {
+    clearTimeout( inputTimeoutID );
     rightArrowDown = false;
   }
   else if (event.key === "Left" || event.key === "ArrowLeft") {
+    clearTimeout( inputTimeoutID );
     leftArrowDown = false;
   }
+  else if (event.key === "Down" || event.key === "ArrowDown") {
+    clearTimeout( inputTimeoutID );
+    downArrowDown = false;
+  }
   else if (event.key === "Up" || event.key === "ArrowUp") {
+    clearTimeout( inputTimeoutID );
     upArrowDown = false;
   }
 }
 
 function rightKeyPressed() {
-  moveRight();
+  if ( ! rightArrowDown
+      && moveRight()) {
+    rightArrowDown = true;
+    inputTimeoutID = setTimeout(rightKeyHeld, 100);
+  }
+}
+
+function rightKeyHeld() {
+  if ( rightArrowDown ) {
+    moveRight();
+    inputTimeoutID = setTimeout(rightKeyHeld, 50);
+  }
 }
 
 function leftKeyPressed() {
-  moveLeft();
+  if ( ! leftArrowDown
+      && moveLeft()) {
+    leftArrowDown = true;
+    inputTimeoutID = setTimeout(leftKeyHeld, 100);
+  }
+}
+
+function leftKeyHeld() {
+  if ( leftArrowDown ) {
+    moveLeft();
+    inputTimeoutID = setTimeout(leftKeyHeld, 50);
+  }
 }
 
 function upKeyPressed() {
-  activeTetro = tryRotate( activeTetro );
+  if ( ! upArrowDown) {
+    upArrowDown = true;
+    activeTetro = tryRotate( activeTetro );
+  }
 }
 
 function downKeyPressed() {
-  moveDown();
+  if ( ! downArrowDown
+      && moveDown()
+  ) {
+    downArrowDown = true;
+    inputTimeoutID = setTimeout(downKeyHeld, 100);
+  }
+}
+
+function downKeyHeld() {
+  if ( downArrowDown ) {
+    moveDown();
+    inputTimeoutID = setTimeout(downKeyHeld, 50);
+  }
 }
 
 /*******************************************************************************
@@ -269,7 +314,9 @@ function moveLeft() {
   })) {
     activeTetro.x -= 1;
     nextTickLock = false;
+    return true;
   }
+  return false;
 }
 
 function moveRight() {
@@ -279,7 +326,9 @@ function moveRight() {
   })) {
     activeTetro.x += 1;
     nextTickLock = false;
+    return true;
   }
+  return false;
 }
 
 function moveDown() {
@@ -288,7 +337,9 @@ function moveDown() {
       y: activeTetro.y + 1
   })) {
     activeTetro.y += 1;
+    return true;
   }
+  return false;
 }
 
 function tryRotate(tetro) {
