@@ -1,6 +1,7 @@
-const INPUT_HOLD_DELAY = 200;
-const INPUT_REPEAT_DELAY = 50;
-const INITIAL_TICK_DELAY = 500;
+const INPUT_REPEAT_DELAY = 200;
+const INPUT_REPEAT_TIME = 50;
+const INITIAL_TICK = 1000;
+const LOCK_DELAY = 500;
 
 class Block {
   constructor(x, y) {
@@ -167,14 +168,14 @@ function rightKeyPressed() {
   if ( ! rightArrowDown
       && moveRight()) {
     rightArrowDown = true;
-    rightTimeoutID = setTimeout(rightKeyHeld, INPUT_HOLD_DELAY);
+    rightTimeoutID = setTimeout(rightKeyHeld, INPUT_REPEAT_DELAY);
   }
 }
 
 function rightKeyHeld() {
   if ( rightArrowDown ) {
     moveRight();
-    rightTimeoutID = setTimeout(rightKeyHeld, INPUT_REPEAT_DELAY);
+    rightTimeoutID = setTimeout(rightKeyHeld, INPUT_REPEAT_TIME);
   }
 }
 
@@ -182,14 +183,14 @@ function leftKeyPressed() {
   if ( ! leftArrowDown
       && moveLeft()) {
     leftArrowDown = true;
-    leftTimeoutID = setTimeout(leftKeyHeld, INPUT_HOLD_DELAY);
+    leftTimeoutID = setTimeout(leftKeyHeld, INPUT_REPEAT_DELAY);
   }
 }
 
 function leftKeyHeld() {
   if ( leftArrowDown ) {
     moveLeft();
-    leftTimeoutID = setTimeout(leftKeyHeld, INPUT_REPEAT_DELAY);
+    leftTimeoutID = setTimeout(leftKeyHeld, INPUT_REPEAT_TIME);
   }
 }
 
@@ -205,14 +206,14 @@ function downKeyPressed() {
       && moveDown()
   ) {
     downArrowDown = true;
-    downTimeoutID = setTimeout(downKeyHeld, INPUT_HOLD_DELAY);
+    downTimeoutID = setTimeout(downKeyHeld, INPUT_REPEAT_DELAY);
   }
 }
 
 function downKeyHeld() {
   if ( downArrowDown ) {
     moveDown();
-    downTimeoutID = setTimeout(downKeyHeld, INPUT_REPEAT_DELAY);
+    downTimeoutID = setTimeout(downKeyHeld, INPUT_REPEAT_TIME);
   }
 }
 
@@ -313,7 +314,11 @@ function moveLeft() {
     x: activeTetro.x - 1
   })) {
     activeTetro.x -= 1;
-    nextTickLock = false;
+    if ( nextTickLock ) {
+      nextTickLock = false;
+      clearTimeout( tickTimeoutID );
+      tickTimeoutID = setTimeout(tick, LOCK_DELAY);
+    }
     return true;
   }
   return false;
@@ -325,7 +330,11 @@ function moveRight() {
     x: activeTetro.x + 1
   })) {
     activeTetro.x += 1;
-    nextTickLock = false;
+    if ( nextTickLock ) {
+      nextTickLock = false;
+      clearTimeout( tickTimeoutID );
+      tickTimeoutID = setTimeout(tick, LOCK_DELAY);
+    }
     return true;
   }
   return false;
@@ -365,7 +374,11 @@ function tryRotate(tetro) {
     }
   }
 
-  nextTickLock = false;
+  if ( nextTickLock ) {
+    nextTickLock = false;
+    clearTimeout( tickTimeoutID );
+    tickTimeoutID = setTimeout(tick, LOCK_DELAY);
+  }
   return rotated;
 }
 
@@ -399,43 +412,54 @@ function removeLine(y) {
  ******************************************************************************/
 
 function startGame() {
+  document.addEventListener("keydown", handleKeyDown);
+  document.addEventListener("keyup", handleKeyUp);
+
+  dropNewTetro();
+  draw();
+}
+
+function tick() {
+  if (nextTickLock === true) {
+    clearInterval( tickTimeoutID );
+    lockedBlocks = lockedBlocks.concat(
+        activeTetro.tetro.getBlocks()
+            .filter(b => b.y + activeTetro.y >= 0)
+            .map(b => new Block(b.x + activeTetro.x, b.y + activeTetro.y)
+    ));
+    if (checkEndgame( activeTetro )) {
+      console.log("Game Over!");
+      return;
+    }
+    nextTickLock = false;
+    checkForLines( activeTetro );
+    dropNewTetro();
+  }
+  else {
+    if (! collisionDetect({ ...activeTetro, y: activeTetro.y + 1 })) {
+      activeTetro.y += 1;
+    }
+    if (collisionDetect({ ...activeTetro, y: activeTetro.y + 1 })) {
+      nextTickLock = true;
+      clearInterval(tickTimeoutID);
+      tickTimeoutID = setTimeout(tick, LOCK_DELAY);
+    }
+    else {
+      tickTimeoutID = setTimeout(tick, tickDelay);
+    }
+  }
+}
+
+function dropNewTetro() {
   activeTetro = {
     tetro: tetroQueue.getNext(),
     x: 3,
     y: -1
   };
-  
-  document.addEventListener("keydown", handleKeyDown);
-  document.addEventListener("keyup", handleKeyUp);
-
-  interval = setInterval(tick, tickDelay);
-  draw();
-}
-
-function tick() {
-  if (! collisionDetect({ ...activeTetro, y: activeTetro.y + 1 })) {
-    activeTetro.y += 1;
+  if (activeTetro.tetro === Tetromino.O) {
+    activeTetro.x = 4;
   }
-  else if (nextTickLock === true) {
-    lockedBlocks = lockedBlocks.concat(
-        activeTetro.tetro.getBlocks().map(
-            b => new Block(b.x + activeTetro.x, b.y + activeTetro.y)
-    ));
-    if (checkEndgame( activeTetro )) {
-      clearInterval( interval );
-      console.log("Game Over!");
-    }
-    checkForLines( activeTetro );
-    activeTetro = {
-      tetro: tetroQueue.getNext(),
-      x: 3,
-      y: -1
-    };
-    nextTickLock = false;
-  }
-  else {
-    nextTickLock = true;
-  }
+  tickTimeoutID = setTimeout(tick, tickDelay);
 }
 
 function scoreLines(count) {
@@ -461,9 +485,7 @@ function scoreLines(count) {
 
 function levelUp() {
   level++;
-  tickDelay -= 25;
-  clearInterval(interval);
-  interval = setInterval(tick, tickDelay);
+  tickDelay = Math.floor(tickDelay * 0.9);
 }
 
 /**
@@ -535,7 +557,7 @@ let lockedBlocks = [];
 let lines = 0;
 let level = 1;
 let score = 0;
-let tickDelay = INITIAL_TICK_DELAY;
-let interval;
+let tickDelay = INITIAL_TICK;
+let tickTimeoutID;
 
 startGame();
