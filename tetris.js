@@ -404,6 +404,10 @@ function startGame() {
     x: 3,
     y: -1
   };
+  
+  document.addEventListener("keydown", handleKeyDown);
+  document.addEventListener("keyup", handleKeyUp);
+
   interval = setInterval(tick, tickDelay);
   draw();
 }
@@ -533,8 +537,5 @@ let level = 1;
 let score = 0;
 let tickDelay = INITIAL_TICK_DELAY;
 let interval;
-
-document.addEventListener("keydown", handleKeyDown);
-document.addEventListener("keyup", handleKeyUp);
 
 startGame();
