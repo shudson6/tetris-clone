@@ -498,17 +498,20 @@ const tetroQueue = (() => {
     return tetros;
   }
 
-  function getNext() {
+  // shake it, you know, make sure it's not empty
+  function shakeBag() {
     if (tetroBag.length == 0) {
       tetroBag = freshTetroBag();
     }
+  }
+
+  function getNext() {
+    shakeBag();
     return tetroBag.pop();
   }
 
   function peek() {
-    if (tetroBag.length == 0) {
-      tetroBag = freshTetroBag();
-    }
+    shakeBag();
     return tetroBag[ tetroBag.length - 1 ];
   }
 
