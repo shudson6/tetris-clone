@@ -1,7 +1,7 @@
 const INPUT_REPEAT_DELAY = 200;
 const INPUT_REPEAT_TIME = 50;
 const INITIAL_TICK = 1000;
-const LOCK_DELAY = 500;
+const LOCK_DELAY = 300;
 
 class Block {
   constructor(x, y) {
@@ -484,8 +484,10 @@ function scoreLines(count) {
 }
 
 function levelUp() {
-  level++;
-  tickDelay = Math.floor(tickDelay * 0.9);
+  if (level < 20) {
+    level++;
+    tickDelay = Math.floor(tickDelay * 0.8);
+  }
 }
 
 /**
