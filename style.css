@@ -1,0 +1,39 @@
+body {
+  background-color: black;
+}
+
+#game {
+  width: 480px;
+  margin: auto;
+}
+
+.dialog {
+  display: none;
+}
+
+.active {
+  background-color: gray;
+  display: block;
+}
+
+button {
+  display: block;
+  min-width: auto;
+  margin: auto;
+}
+
+#welcome {
+  position: absolute;
+  top: 25%;
+  left: 25%;
+  height: 50%;
+  width: 50%;
+}
+
+.dialog div {
+  font-weight: bold;
+  font-size: 18pt;
+  font-family: sans-serif;
+  color: white;
+  text-align: center;
+}

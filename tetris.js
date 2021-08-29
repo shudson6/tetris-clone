@@ -412,6 +412,13 @@ function removeLine(y) {
  ******************************************************************************/
 
 function startGame() {
+  lockedBlocks = [];
+  lines = 0;
+  level = 1;
+  score = 0;
+  tickDelay = INITIAL_TICK;
+  nextTickLock = false;
+
   document.addEventListener("keydown", handleKeyDown);
   document.addEventListener("keyup", handleKeyUp);
 
@@ -428,7 +435,7 @@ function tick() {
             .map(b => new Block(b.x + activeTetro.x, b.y + activeTetro.y)
     ));
     if (checkEndgame( activeTetro )) {
-      console.log("Game Over!");
+      gameOver();
       return;
     }
     nextTickLock = false;
@@ -549,6 +556,16 @@ const tetroQueue = (() => {
   };
 })();
 
+function gameOver() {
+  console.log("Game Over");
+  document.getElementById("gameover").classList.add("active");
+  document.getElementById("restart").onclick = () => {
+    document.getElementById("gameover").classList.remove("active");
+    startGame();
+    this.onclick = null;
+  };
+}
+
 /*******************************************************************************
  * Setup
  ******************************************************************************/
@@ -562,4 +579,10 @@ let score = 0;
 let tickDelay = INITIAL_TICK;
 let tickTimeoutID;
 
-startGame();
+document.getElementById("welcome").classList.add("active");
+document.getElementById("start").addEventListener("click",
+  () => {
+    document.getElementById("welcome").classList.remove("active");
+    startGame();
+  }
+);
