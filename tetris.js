@@ -122,7 +122,9 @@ let leftArrowDown = false;
 let rightArrowDown = false;
 let upArrowDown = false;
 let downArrowDown = false;
-let inputTimeoutID;
+let leftTimeoutID;
+let rightTimeoutID;
+let downTimeoutID;
 
 function handleKeyDown(event) {
   if (event.key === "Right" || event.key === "ArrowRight") {
@@ -141,19 +143,18 @@ function handleKeyDown(event) {
 
 function handleKeyUp(event) {
   if (event.key === "Right" || event.key === "ArrowRight") {
-    clearTimeout( inputTimeoutID );
+    clearTimeout( rightTimeoutID );
     rightArrowDown = false;
   }
   else if (event.key === "Left" || event.key === "ArrowLeft") {
-    clearTimeout( inputTimeoutID );
+    clearTimeout( leftTimeoutID );
     leftArrowDown = false;
   }
   else if (event.key === "Down" || event.key === "ArrowDown") {
-    clearTimeout( inputTimeoutID );
+    clearTimeout( downTimeoutID );
     downArrowDown = false;
   }
   else if (event.key === "Up" || event.key === "ArrowUp") {
-    clearTimeout( inputTimeoutID );
     upArrowDown = false;
   }
 }
@@ -162,14 +163,14 @@ function rightKeyPressed() {
   if ( ! rightArrowDown
       && moveRight()) {
     rightArrowDown = true;
-    inputTimeoutID = setTimeout(rightKeyHeld, 100);
+    rightTimeoutID = setTimeout(rightKeyHeld, 100);
   }
 }
 
 function rightKeyHeld() {
   if ( rightArrowDown ) {
     moveRight();
-    inputTimeoutID = setTimeout(rightKeyHeld, 50);
+    rightTimeoutID = setTimeout(rightKeyHeld, 50);
   }
 }
 
@@ -177,14 +178,14 @@ function leftKeyPressed() {
   if ( ! leftArrowDown
       && moveLeft()) {
     leftArrowDown = true;
-    inputTimeoutID = setTimeout(leftKeyHeld, 100);
+    leftTimeoutID = setTimeout(leftKeyHeld, 100);
   }
 }
 
 function leftKeyHeld() {
   if ( leftArrowDown ) {
     moveLeft();
-    inputTimeoutID = setTimeout(leftKeyHeld, 50);
+    leftTimeoutID = setTimeout(leftKeyHeld, 50);
   }
 }
 
@@ -200,14 +201,14 @@ function downKeyPressed() {
       && moveDown()
   ) {
     downArrowDown = true;
-    inputTimeoutID = setTimeout(downKeyHeld, 100);
+    downTimeoutID = setTimeout(downKeyHeld, 100);
   }
 }
 
 function downKeyHeld() {
   if ( downArrowDown ) {
     moveDown();
-    inputTimeoutID = setTimeout(downKeyHeld, 50);
+    downTimeoutID = setTimeout(downKeyHeld, 50);
   }
 }
 
