@@ -1,5 +1,6 @@
 const INPUT_HOLD_DELAY = 200;
 const INPUT_REPEAT_DELAY = 50;
+const INITIAL_TICK_DELAY = 500;
 
 class Block {
   constructor(x, y) {
@@ -244,12 +245,13 @@ function drawBlocks(blocks) {
 function drawScore(context) {
   context.font = "24px sans-serif";
   context.fillText(`level: ${level}`, 330, 180);
-  context.fillText(`lines: ${lines}`, 330, 200);
+  context.fillText(`score: ${score}`, 330, 210);
+  context.fillText(`lines: ${lines}`, 330, 240);
 }
 
 function drawNext(context) {
   context.font = "18px sans-serif";
-  context.fillText("next:", 330, 17);
+  context.fillText("next:", 330, 30);
   drawBlocks( tetroQueue.peek().getBlocks()
       .map(b => new Block(b.x + 11, b.y + 2))
   );
@@ -335,6 +337,7 @@ function moveDown() {
       y: activeTetro.y + 1
   })) {
     activeTetro.y += 1;
+    score += 1;
     return true;
   }
   return false;
@@ -433,6 +436,20 @@ function tick() {
 
 function scoreLines(count) {
   lines += count;
+  switch (count) {
+    case 1:
+      score += 200;
+      break;
+    case 2:
+      score += 500;
+      break;
+    case 3:
+      score += 800;
+      break;
+    case 4:
+      score += 1200;
+      break;
+  }
   if (Math.floor(lines / 10) >= level) {
     levelUp();
   }
@@ -458,6 +475,8 @@ function checkEndgame(tetro) {
 }
 
 // warning: iife
+// i did it this way because practice
+// also, i kind of like this better for a singleton
 const tetroQueue = (() => {
   let tetroBag = [];
 
@@ -508,7 +527,8 @@ let activeTetro = {};
 let lockedBlocks = [];
 let lines = 0;
 let level = 1;
-let tickDelay = 500;
+let score = 0;
+let tickDelay = INITIAL_TICK_DELAY;
 let interval;
 
 document.addEventListener("keydown", handleKeyDown);
