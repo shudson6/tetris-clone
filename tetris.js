@@ -30,12 +30,6 @@ class Tetromino {
     ];
   }
 
-  drawSelf(context, x, y) {
-    for (const [i, j] of this.blocks) {
-      drawBlock(context, i + x, j + y);
-    }
-  }
-
   getBlocks() {
     // deep copy
     return this.blocks.map(b => Object.assign({}, b));
