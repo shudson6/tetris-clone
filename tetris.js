@@ -1,3 +1,6 @@
+const INPUT_HOLD_DELAY = 200;
+const INPUT_REPEAT_DELAY = 50;
+
 class Block {
   constructor(x, y) {
     this.x = x;
@@ -163,14 +166,14 @@ function rightKeyPressed() {
   if ( ! rightArrowDown
       && moveRight()) {
     rightArrowDown = true;
-    rightTimeoutID = setTimeout(rightKeyHeld, 100);
+    rightTimeoutID = setTimeout(rightKeyHeld, INPUT_HOLD_DELAY);
   }
 }
 
 function rightKeyHeld() {
   if ( rightArrowDown ) {
     moveRight();
-    rightTimeoutID = setTimeout(rightKeyHeld, 50);
+    rightTimeoutID = setTimeout(rightKeyHeld, INPUT_REPEAT_DELAY);
   }
 }
 
@@ -178,14 +181,14 @@ function leftKeyPressed() {
   if ( ! leftArrowDown
       && moveLeft()) {
     leftArrowDown = true;
-    leftTimeoutID = setTimeout(leftKeyHeld, 100);
+    leftTimeoutID = setTimeout(leftKeyHeld, INPUT_HOLD_DELAY);
   }
 }
 
 function leftKeyHeld() {
   if ( leftArrowDown ) {
     moveLeft();
-    leftTimeoutID = setTimeout(leftKeyHeld, 50);
+    leftTimeoutID = setTimeout(leftKeyHeld, INPUT_REPEAT_DELAY);
   }
 }
 
@@ -201,14 +204,14 @@ function downKeyPressed() {
       && moveDown()
   ) {
     downArrowDown = true;
-    downTimeoutID = setTimeout(downKeyHeld, 100);
+    downTimeoutID = setTimeout(downKeyHeld, INPUT_HOLD_DELAY);
   }
 }
 
 function downKeyHeld() {
   if ( downArrowDown ) {
     moveDown();
-    downTimeoutID = setTimeout(downKeyHeld, 50);
+    downTimeoutID = setTimeout(downKeyHeld, INPUT_REPEAT_DELAY);
   }
 }
 
