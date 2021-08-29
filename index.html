@@ -7,16 +7,18 @@
       body {
         background-color: black;
       }
-      canvas {
-        margin-left: auto;
-        margin-right: auto;
+      .game {
+        width: 480px;
+        margin: auto;
       }
     </style>
   </head>
   <body>
-    <canvas id="playfield" height="640" width="480">
-      <p>Fail!</p>
-    </canvas>
+    <div class="game">
+      <canvas id="playfield" height="640" width="480">
+        <p>Fail!</p>
+      </canvas>
+    </div>
     <script src="tetris.js"></script>
   </body>
 </html>
